@@ -3,45 +3,27 @@ function part1()
     score = 0
 
     for l in eachline("input/day2/input")
-        abc, xyz = split(l)
+        abc, _, xyz = l
 
-        tmp = 0
+        a = abc - 'A'
+        b = xyz - 'X'
 
-        tmp += xyz[1] - 'X' + 1
-
-        if abc == "A" && xyz == "Y" || abc == "B" && xyz == "Z" || abc == "C" && xyz == "X"
-            tmp += 6
-        end
-
-        if (abc[1] - 'A') == (xyz[1] - 'X')
-            tmp += 3
-        end
-
-        score += tmp
+        score += (b + 1) + (b - a + 4) % 3 * 3
     end
 
     score
 end
 
 function part2()
-    lookup = Dict([
-        ('A', 'X') => 3,
-        ('A', 'Y') => 3 + 1,
-        ('A', 'Z') => 2 + 6,
-        ('B', 'X') => 1,
-        ('B', 'Y') => 2 + 3,
-        ('B', 'Z') => 3 + 6,
-        ('C', 'X') => 2,
-        ('C', 'Y') => 3 + 3,
-        ('C', 'Z') => 1 + 6,
-    ])
-
     score = 0
 
     for l in eachline("input/day2/input")
-        abc, xyz = split(l)
+        abc, _, xyz = l
 
-        score += lookup[(abc[1], xyz[1])]
+        a = abc - 'A'
+        b = xyz - 'X'
+
+        score += b * 3 + (b + a + 2) % 3 + 1
     end
 
     score
