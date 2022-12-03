@@ -28,7 +28,6 @@ function part2()
     x = 0
 
     for (a, b, c) in eachcol(reshape(lines, 3, length(lines) ÷ 3))
-
         s = intersect(a, b, c)
 
         ch, = s
