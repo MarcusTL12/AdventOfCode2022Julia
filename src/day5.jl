@@ -1,84 +1,64 @@
 
-function part1()
-    top, bottom = split(read("input/day5/input", String), "\n\n")
+function parse_stacks(lines)
+    stacks = Vector{Char}[]
 
-    s_top = split(top, "\n")
+    for l in lines
+        if l[2] == '1'
+            popfirst!(lines)
+            break
+        end
 
-    nstacks = length(split(s_top[end]))
+        if isempty(stacks)
+            append!(stacks, Char[] for _ in 1:cld(length(l), 4))
+        end
 
-    stacks = [Char[] for _ in 1:nstacks]
-
-    for l in s_top[1:end-1]
         j = 2
-        for i in 1:nstacks
+        for i in eachindex(stacks)
             if l[j] != ' '
-                push!(stacks[i], l[j])
+                pushfirst!(stacks[i], l[j])
             end
             j += 4
         end
     end
 
-    display(stacks)
+    stacks
+end
 
-    for l in split(bottom, "\n")
-        if !isempty(l)
-            _, a, _, b, _, c = split(l)
+function part1()
+    lines = Iterators.Stateful(eachline("input/day5/input"))
 
-            a = parse(Int, a)
-            b = parse(Int, b)
-            c = parse(Int, c)
+    stacks = parse_stacks(lines)
 
-            for _ in 1:a
-                if !isempty(stacks[b])
-                    pushfirst!(stacks[c], popfirst!(stacks[b]))
-                end
-            end
+    for l in lines
+        _, a, _, b, _, c = split(l)
+
+        a = parse(Int, a)
+        b = parse(Int, b)
+        c = parse(Int, c)
+
+        for _ in 1:a
+            push!(stacks[c], pop!(stacks[b]))
         end
     end
 
-    String([first(c) for c in stacks if !isempty(c)])
+    String([last(c) for c in stacks])
 end
 
 function part2()
-    top, bottom = split(read("input/day5/input", String), "\n\n")
+    lines = Iterators.Stateful(eachline("input/day5/input"))
 
-    s_top = split(top, "\n")
+    stacks = parse_stacks(lines)
 
-    nstacks = length(split(s_top[end]))
+    for l in lines
+        _, a, _, b, _, c = split(l)
 
-    stacks = [Char[] for _ in 1:nstacks]
+        a = parse(Int, a)
+        b = parse(Int, b)
+        c = parse(Int, c)
 
-    for l in s_top[1:end-1]
-        j = 2
-        for i in 1:nstacks
-            if l[j] != ' '
-                push!(stacks[i], l[j])
-            end
-            j += 4
-        end
+        append!(stacks[c], @view stacks[b][end-(a-1):end])
+        resize!(stacks[b], length(stacks[b]) - a)
     end
 
-    display(stacks)
-
-    for l in split(bottom, "\n")
-        if !isempty(l)
-            _, a, _, b, _, c = split(l)
-
-            a = parse(Int, a)
-            b = parse(Int, b)
-            c = parse(Int, c)
-
-            tmpstack = Char[]
-
-            for _ in 1:a
-                pushfirst!(tmpstack, popfirst!(stacks[b]))
-            end
-
-            for _ in 1:a
-                pushfirst!(stacks[c], popfirst!(tmpstack))
-            end
-        end
-    end
-
-    String([first(c) for c in stacks if !isempty(c)])
+    String([last(c) for c in stacks])
 end
