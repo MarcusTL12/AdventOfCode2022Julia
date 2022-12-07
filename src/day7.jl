@@ -20,10 +20,8 @@ function part1()
                 outdirkey = joinpath(dirstack)
                 dirsizes[outdirkey] += dirsizes[curdirkey]
             end
-        else
-            if isnumeric(l[1])
-                dirsizes[joinpath(dirstack)] += parse(Int, split(l)[1])
-            end
+        elseif isnumeric(l[1])
+            dirsizes[joinpath(dirstack)] += parse(Int, split(l)[1])
         end
     end
 
@@ -51,10 +49,8 @@ function part2()
                 outdirkey = joinpath(dirstack)
                 dirsizes[outdirkey] += dirsizes[curdirkey]
             end
-        else
-            if isnumeric(l[1])
-                dirsizes[joinpath(dirstack)] += parse(Int, split(l)[1])
-            end
+        elseif isnumeric(l[1])
+            dirsizes[joinpath(dirstack)] += parse(Int, split(l)[1])
         end
     end
 
