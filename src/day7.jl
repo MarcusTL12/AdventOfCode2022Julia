@@ -65,11 +65,7 @@ function part2()
         dirsizes[outdirkey] += dirsizes[curdirkey]
     end
 
-    display(dirsizes)
-
-    unused = 70000000 - maximum(values(dirsizes))
-
-    @show unused
+    unused = 70000000 - dirsizes["/"]
 
     cur_k = ""
     cur_v = typemax(Int)
