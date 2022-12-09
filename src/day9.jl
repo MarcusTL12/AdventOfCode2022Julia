@@ -56,8 +56,6 @@ function part2()
         d = dirs[d]
 
         for _ in 1:n
-            new_rope = copy(rope)
-
             rope[1] = rope[1] .+ d
 
             for i in 2:10
