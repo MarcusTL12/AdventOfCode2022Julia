@@ -4,8 +4,6 @@ function infdist(a, b)
 end
 
 function part1()
-    x = 0
-
     h = (0, 0)
     t = (0, 0)
 
@@ -39,8 +37,6 @@ function part1()
 end
 
 function part2()
-    x = 0
-
     rope = [(0, 0) for _ in 1:10]
 
     tvisited = Set([(0, 0)])
