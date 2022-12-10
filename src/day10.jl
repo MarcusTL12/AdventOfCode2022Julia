@@ -3,8 +3,6 @@ function part1()
     x = 1
     y = 0
 
-    # pipeline = Int[0, ]
-
     cycles = 0
 
     milestones = [20, 60, 100, 140, 180, 220]
@@ -15,24 +13,19 @@ function part1()
         if length(s) > 1
             n = parse(Int, s[2])
 
-            # push!(pipeline, 0)
             cycles += 1
             if cycles in milestones
                 y += cycles * x
-                @show x, cycles
             end
             cycles += 1
             if cycles in milestones
                 y += cycles * x
-                @show x, cycles
             end
             x += n
         else
-            # push!(pipeline, 0)
             cycles += 1
             if cycles in milestones
                 y += cycles * x
-                @show x, cycles
             end
         end
     end
