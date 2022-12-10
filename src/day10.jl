@@ -43,15 +43,15 @@ function drawscreen(screen)
 end
 
 function part2()
-    x = 1
+    x = 2
 
     sx = Ref(1)
     sy = Ref(1)
 
     screen = falses(40, 6)
 
-    function push_too_screen()
-        if 0 <= sx[] - x <= 2
+    function push_to_screen()
+        if abs(sx[] - x) <= 1
             screen[sx[], sy[]] = true
         end
 
@@ -68,11 +68,11 @@ function part2()
         if length(s) > 1
             n = parse(Int, s[2])
 
-            push_too_screen()
-            push_too_screen()
+            push_to_screen()
+            push_to_screen()
             x += n
         else
-            push_too_screen()
+            push_to_screen()
         end
     end
 
