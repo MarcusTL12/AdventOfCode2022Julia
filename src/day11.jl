@@ -1,5 +1,10 @@
 
-parse_reg::Regex = r"Monkey \d+:\n +Starting items: ((?:\d+,? ?)+)\n +Operation: new = old (.) (\w+)\n +Test: divisible by (\d+)\n +If true: throw to monkey (\d+)\n +If false: throw to monkey (\d+)"
+parse_reg::Regex = r"Monkey \d+:
+ +Starting items: ((?:\d+,? ?)+)
+ +Operation: new = old (.) (\w+)
+ +Test: divisible by (\d+)
+ +If true: throw to monkey (\d+)
+ +If false: throw to monkey (\d+)"
 
 function parse_inp(filename)
     s = read(filename, String)
@@ -21,7 +26,7 @@ function parse_inp(filename)
 end
 
 function part1()
-    monkeys = parse_inp("input/day11/ex1")
+    monkeys = parse_inp("input/day11/input")
 
     inspects = [0 for _ in monkeys]
 
@@ -64,7 +69,7 @@ function part1()
 
     sort!(inspects)
 
-    # inspects[end] * inspects[end - 1]
+    inspects[end] * inspects[end - 1]
 end
 
 function part2()
@@ -110,10 +115,6 @@ function part2()
             end
 
             empty!(m[1])
-        end
-
-        if k in [1, 20, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000]
-            @show (k, inspects)
         end
     end
 
