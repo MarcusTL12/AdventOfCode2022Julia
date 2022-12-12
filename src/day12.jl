@@ -6,6 +6,33 @@ dirs = [
     (0, -1),
 ]
 
+function find_shortest(mountain, start, stop)
+    w, h = size(mountain)
+
+    queue = [(start, 0)]
+
+    visited = Set([start])
+
+    while !isempty(queue)
+        (pos, l) = popfirst!(queue)
+
+        for d in dirs
+            npos = pos .+ d
+
+            if npos ∉ visited && (1 <= npos[1] <= w && 1 <= npos[2] <= h) &&
+               mountain[pos...] - mountain[npos...] >= -1
+                if npos == stop
+                    return l + 1
+                end
+                push!(queue, (npos, l + 1))
+                push!(visited, npos)
+            end
+        end
+    end
+
+    typemax(Int)
+end
+
 function part1()
     mountain = Char[]
 
@@ -35,63 +62,7 @@ function part1()
         end
     end
 
-    @show start stop
-
-    # display(mountain)
-
-    queue = [(start, 0)]
-
-    visited = Set([start])
-
-    while !isempty(queue)
-        (pos, l) = popfirst!(queue)
-
-        # @show pos, l
-
-        # if pos == stop
-        #     return l
-        # end
-
-        for d in dirs
-            npos = pos .+ d
-
-            if npos ∉ visited && (1 <= npos[1] <= w && 1 <= npos[2] <= h) &&
-               mountain[pos...] - mountain[npos...] >= -1
-                if npos == stop
-                    return l + 1
-                end
-                push!(queue, (npos, l + 1))
-                push!(visited, npos)
-            end
-        end
-    end
-end
-
-function find_shortest(mountain, start, stop)
-    w, h = size(mountain)
-
-    queue = [(start, 0)]
-
-    visited = Set([start])
-
-    while !isempty(queue)
-        (pos, l) = popfirst!(queue)
-
-        for d in dirs
-            npos = pos .+ d
-
-            if npos ∉ visited && (1 <= npos[1] <= w && 1 <= npos[2] <= h) &&
-               mountain[pos...] - mountain[npos...] >= -1
-                if npos == stop
-                    return l + 1
-                end
-                push!(queue, (npos, l + 1))
-                push!(visited, npos)
-            end
-        end
-    end
-
-    typemax(Int)
+    find_shortest(mountain, start, stop)
 end
 
 function part2()
