@@ -1,11 +1,9 @@
 
 function compare(a::Int, b::Int)
-    # @show (a, b)
     a - b
 end
 
 function compare(a::Vector, b::Vector)
-    # @show (a, b)
     for (x, y) in zip(a, b)
         c = compare(x, y)
         if c != 0
@@ -17,12 +15,10 @@ function compare(a::Vector, b::Vector)
 end
 
 function compare(a::Int, b::Vector)
-    # @show (a, b)
     compare([a], b)
 end
 
 function compare(a::Vector, b::Int)
-    # @show (a, b)
     compare(a, [b])
 end
 
