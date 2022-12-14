@@ -66,13 +66,11 @@ function insert_sand2(tiles, at)
         elseif get(tiles, sand .+ (1, 1), 0) == 0
             sand = sand .+ (1, 1)
         else
-            # @show sand, 1
             tiles[sand] = 2
             return
         end
     end
 
-    # @show sand, 2
     tiles[sand] = 2;
 end
 
