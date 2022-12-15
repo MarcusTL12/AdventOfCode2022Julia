@@ -42,20 +42,6 @@ function is_any_overlap(r1, r2)
      r2[2] >= r1[1] && r2[2] <= r1[2])
 end
 
-function combine_consecutive_ranges(rs)
-    nrs = Tuple{Int,Int}[rs[1]]
-
-    for r in rs[2:end]
-        if nrs[end][2] == r[1] - 1
-            nrs[end] = (nrs[end][1], r[2])
-        else
-            push!(nrs, r)
-        end
-    end
-
-    nrs
-end
-
 function union_ranges(r1, r2)
     if range_contained(r1, r2)
         r1
