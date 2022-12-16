@@ -1,6 +1,3 @@
-using Permutations
-using DataStructures
-
 valvereg::Regex = r"Valve (\w+) has flow rate=(\d+); tunnels? leads? to valves? (.+)"
 
 function find_shortest_all2all(valves, nonzero_valves)
@@ -83,59 +80,6 @@ function part1()
 
     x
 end
-
-# function do_strategy2(valves, nonzero, all2all, actions, open_valves,
-#     time_remaining)
-
-#     @show time_remaining, actions
-
-#     time_spent = actions[1][1]
-
-#     if time_spent > time_remaining
-#         return 0
-#     end
-
-#     time_remaining -= time_spent
-#     push!(open_valves, actions[1][2])
-#     relief = valves[actions[1][2]][1] * time_remaining
-
-#     x = 0
-
-#     for a in nonzero
-#         if a ∉ open_valves
-#             if a == actions[2][2]
-#                 new_actions = copy(actions)
-#                 if all2all[(actions[1][2], a)] + 1 < actions[2][1] - time_spent
-#                     new_actions[1] = (all2all[(actions[1][2], a)] + 1, a)
-
-#                     for b in nonzero
-#                         if b != a && b ∉ open_valves
-#                             new_actions[2] = (all2all[(actions[2][2], b)] + 1, a)
-
-#                             y = do_strategy2(valves, nonzero, all2all, sort!(new_actions),
-#                                 open_valves, time_remaining)
-#                             x = max(x, y)
-#                         end
-#                     end
-#                 else
-#                     new_actions[1] = (actions[2][1] - time_spent, actions[2][2])
-#                 end
-#             else
-#                 new_actions = copy(actions)
-#                 new_actions[1] = (all2all[(actions[1][2], a)] + 1, a)
-#                 new_actions[2] = (actions[2][1] - time_spent, actions[2][2])
-
-#                 y = do_strategy2(valves, nonzero, all2all, sort!(new_actions),
-#                     open_valves, time_remaining)
-#                 x = max(x, y)
-#             end
-#         end
-#     end
-
-#     delete!(open_valves, actions[1][1])
-
-#     relief + x
-# end
 
 function part2()
     valves = Dict{String,Tuple{Int,Vector{String}}}()
