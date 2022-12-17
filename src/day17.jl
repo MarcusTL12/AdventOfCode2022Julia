@@ -51,7 +51,6 @@ function part1()
     pieces_placed = 0
 
     while pieces_placed < 2022
-        # for _ in 1:3
         x = 3
         y = peak + 4
 
