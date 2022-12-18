@@ -61,12 +61,12 @@ function part2()
 
     exterior = Set{NTuple{3,Int}}()
 
-    queue = [(minx, miny, minz)]
+    stack = [(minx, miny, minz)]
 
     area = 0
 
-    while !isempty(queue)
-        pos = popfirst!(queue)
+    while !isempty(stack)
+        pos = pop!(stack)
 
         for d in DIRS
             npos = pos .+ d
@@ -76,7 +76,7 @@ function part2()
             end
 
             if npos ∉ cubes && npos ∉ exterior && is_inside_large_cube(npos)
-                push!(queue, npos)
+                push!(stack, npos)
                 push!(exterior, npos)
             end
         end
