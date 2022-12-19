@@ -263,5 +263,3 @@ function part2()
 
     prod(xs)
 end
-
-@show @time part2()
