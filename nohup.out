@@ -1,0 +1,2 @@
+ 89.623161 seconds (722.93 M allocations: 86.430 GiB, 11.35% gc time, 0.26% compilation time)
+#= /home/marcusl/programming/AdventOfCode2022Julia/src/day19.jl:267 =# @time(part2()) = 21546
