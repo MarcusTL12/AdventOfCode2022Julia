@@ -1,3 +1,4 @@
+using DataStructures
 
 reg::Regex = r"Blueprint \d+: Each ore robot costs (\d+) ore\. Each clay robot costs (\d+) ore\. Each obsidian robot costs (\d+) ore and (\d+) clay\. Each geode robot costs (\d+) ore and (\d+) obsidian\."
 
@@ -102,122 +103,109 @@ function get_n_geodes(ore_cost, clay_cost, obs_cost, geode_cost, total_time)
     rec((0, 0, 0, 0), (1, 0, 0, 0), total_time)
 end
 
-function get_n_geodes_smart(ore_cost, clay_cost, obs_cost, geode_cost, total_time)
-    memo = Dict{Tuple{NTuple{4,Int},NTuple{4,Int},Int},Int}()
+function get_n_geodes_dijkstra(ore_cost, clay_cost, obs_cost, geode_cost,
+    total_time)
 
-    function rec((ore, clay, obs, geode),
-        (ore_bots, clay_bots, obs_bots, geo_bots), time_left)
+    queue = PriorityQueue(((0, 0, 0, 0), (1, 0, 0, 0), total_time) => 0)
 
-        k = ((ore, clay, obs, geode),
-            (ore_bots, clay_bots, obs_bots, geo_bots), time_left)
-
-        @show k
-
-        if haskey(memo, k)
-            return memo[k]
-        end
+    while !isempty(queue)
+        (
+            (ore, clay, obs, geode),
+            (ore_bots, clay_bots, obs_bots, geo_bots),
+            time_left
+        ), wasted_geodes = dequeue_pair!(queue)
 
         if time_left == 0
-            memo[k] = geode
             return geode
         end
 
-        tot_geodes = geode + geo_bots * time_left
+        if ore >= geode_cost[1] && obs >= geode_cost[2]
+            k = (
+                (
+                    ore + ore_bots - geode_cost[1],
+                    clay + clay_bots,
+                    obs + obs_bots - geode_cost[2],
+                    geode + geo_bots
+                ),
+                (ore_bots, clay_bots, obs_bots, geo_bots + 1),
+                time_left - 1
+            )
 
-        # If any possible need for ore bot
-        if ore_bots < clay_cost + obs_cost[1] + geode_cost[1]
-            needed_for_ore_bot = max(0, ore_cost - ore)
-            time_for_ore_bot = needed_for_ore_bot ÷ ore_bots
-            time_to_wait = time_for_ore_bot + 1
+            queue[k] = min(
+                get(queue, k, typemax(Int)),
+                wasted_geodes
+            )
+        else
+            k = (
+                (
+                    ore + ore_bots,
+                    clay + clay_bots,
+                    obs + obs_bots,
+                    geode + geo_bots
+                ),
+                (ore_bots, clay_bots, obs_bots, geo_bots),
+                time_left - 1
+            )
+            queue[k] = min(
+                get(queue, k, typemax(Int)),
+                wasted_geodes + time_left - 1
+            )
 
-            if time_to_wait < time_left
-                tot_geodes = max(tot_geodes, rec(
+            if ore >= ore_cost && ore_bots < max(clay_cost, obs_cost[1], geode_cost[1])
+                k = (
                     (
-                        ore + ore_bots * time_to_wait - ore_cost,
-                        clay + clay_bots * time_to_wait,
-                        obs + obs_bots * time_to_wait,
-                        geode + geo_bots * time_to_wait
+                        ore + ore_bots - ore_cost,
+                        clay + clay_bots,
+                        obs + obs_bots,
+                        geode + geo_bots
                     ),
                     (ore_bots + 1, clay_bots, obs_bots, geo_bots),
-                    time_left - time_to_wait
-                ))
+                    time_left - 1
+                )
+
+                queue[k] = min(
+                    get(queue, k, typemax(Int)),
+                    wasted_geodes + time_left - 1
+                )
             end
-        end
 
-        # If any possible need for clay bot
-        if clay_bots < obs_cost[2]
-            needed_for_clay_bot = max(0, clay_cost - ore)
-            time_for_clay_bot = needed_for_clay_bot ÷ ore_bots
-            time_to_wait = time_for_clay_bot + 1
-
-            @show needed_for_clay_bot time_to_wait
-
-            if time_to_wait < time_left
-                tot_geodes = max(tot_geodes, rec(
+            if ore >= clay_cost && clay_bots < obs_cost[2]
+                k = (
                     (
-                        ore + ore_bots * time_to_wait - clay_cost,
-                        clay + clay_bots * time_to_wait,
-                        obs + obs_bots * time_to_wait,
-                        geode + geo_bots * time_to_wait
+                        ore + ore_bots - clay_cost,
+                        clay + clay_bots,
+                        obs + obs_bots,
+                        geode + geo_bots
                     ),
                     (ore_bots, clay_bots + 1, obs_bots, geo_bots),
-                    time_left - time_to_wait
-                ))
+                    time_left - 1
+                )
+
+                queue[k] = min(
+                    get(queue, k, typemax(Int)),
+                    wasted_geodes + time_left - 1
+                )
             end
-        end
 
-        # If any possible need for obs bot
-        if clay_bots > 0 && obs_bots < geode_cost[2]
-            needed_ore = max(0, obs_cost[1] - ore)
-            needed_clay = max(0, obs_cost[2] - clay)
-            time_to_wait = max(
-                needed_ore ÷ ore_bots,
-                needed_clay ÷ clay_bots
-            ) + 1
-
-            if time_to_wait < time_left
-                tot_geodes = max(tot_geodes, rec(
+            if ore >= obs_cost[1] && clay >= obs_cost[2] && obs_bots < geode_cost[2]
+                k = (
                     (
-                        ore + ore_bots * time_to_wait - obs_cost[1],
-                        clay + clay_bots * time_to_wait - obs_cost[2],
-                        obs + obs_bots * time_to_wait,
-                        geode + geo_bots * time_to_wait
+                        ore + ore_bots - obs_cost[1],
+                        clay + clay_bots - obs_cost[2],
+                        obs + obs_bots,
+                        geode + geo_bots
                     ),
                     (ore_bots, clay_bots, obs_bots + 1, geo_bots),
-                    time_left - time_to_wait
-                ))
+                    time_left - 1
+                )
+
+                queue[k] = min(
+                    get(queue, k, typemax(Int)),
+                    wasted_geodes + time_left - 1
+                )
             end
         end
-
-        # If possible to build geo bot
-        if obs_bots > 0
-            needed_ore = max(0, geode_cost[1] - ore)
-            needed_obs = max(0, geode_cost[2] - obs)
-            time_to_wait = max(
-                needed_ore ÷ ore_bots,
-                needed_obs ÷ obs_bots
-            ) + 1
-
-            if time_to_wait < time_left
-                tot_geodes = max(tot_geodes, rec(
-                    (
-                        ore + ore_bots * time_to_wait - geode_cost[1],
-                        clay + clay_bots * time_to_wait,
-                        obs + obs_bots * time_to_wait - geode_cost[2],
-                        geode + geo_bots * time_to_wait
-                    ),
-                    (ore_bots, clay_bots, obs_bots, geo_bots + 1),
-                    time_left - time_to_wait
-                ))
-            end
-        end
-
-        memo[k] = tot_geodes
-
-        tot_geodes
     end
-
-    rec((0, 0, 0, 0), (1, 0, 0, 0), total_time)
 end
 
 function part1()
@@ -236,7 +224,7 @@ function part1()
     xs = [0 for _ in 1:Threads.nthreads()]
 
     Threads.@threads for (i, b) in blueprints
-        xs[Threads.threadid()] += i * get_n_geodes(b..., 24)
+        xs[Threads.threadid()] += i * get_n_geodes_dijkstra(b..., 24)
     end
 
     sum(xs)
@@ -258,7 +246,7 @@ function part2()
     xs = [1 for _ in 1:Threads.nthreads()]
 
     Threads.@threads for (_, b) in blueprints[1:3]
-        xs[Threads.threadid()] *= get_n_geodes(b..., 32)
+        xs[Threads.threadid()] *= get_n_geodes_dijkstra(b..., 32)
     end
 
     prod(xs)
