@@ -91,19 +91,25 @@ function get_n_geodes(ore_cost, clay_cost, obs_cost, geode_cost)
 end
 
 function part1()
-    tasks = Task[]
+    blueprints = Tuple{Int,Tuple{Int,Int,NTuple{2,Int},NTuple{2,Int}}}[]
 
-    for (i, l) in enumerate(eachline("input/day19/ex1"))
+    for (i, l) in enumerate(eachline("input/day19/input"))
         m = match(reg, l)
 
         costs = parse.(Int, m.captures)
 
-        push!(tasks, @async get_n_geodes(
+        push!(blueprints, (i, (
             costs[1], costs[2], (costs[3:4]...,), (costs[5:6]...,)
-        ))
+        )))
     end
 
-    x
+    xs = [0 for _ in 1:Threads.nthreads()]
+
+    Threads.@threads for (i, b) in blueprints
+        xs[Threads.threadid()] += i * get_n_geodes(b...)
+    end
+
+    sum(xs)
 end
 
 function part2()
