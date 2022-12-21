@@ -1,5 +1,4 @@
-using PyCall
-z3 = pyimport("z3")
+using SymPy
 
 function find_val(monkeys, monkey)
     if monkeys[monkey] isa Int
@@ -45,7 +44,7 @@ function part1()
 end
 
 function find_val_sym(monkeys, monkey)
-    if monkeys[monkey] isa PyObject || monkeys[monkey] isa Int
+    if monkeys[monkey] isa Sym
         monkeys[monkey]
     else
         a, o, b = monkeys[monkey]
@@ -60,7 +59,7 @@ function find_val_sym(monkeys, monkey)
         elseif o == '*'
             ax * bx
         elseif o == '/'
-            if ax isa PyObject || bx isa PyObject
+            if ax isa Sym || bx isa Sym
                 ax / bx
             else
                 ax ÷ bx
@@ -74,15 +73,15 @@ function find_val_sym(monkeys, monkey)
 end
 
 function find_humn(monkeys)
-    monkeys["humn"] = z3.Int("humn")
+    monkeys["humn"] = Sym("humn")
 
     a, _, b = monkeys["root"]
     
-    z3.solve(find_val_sym(monkeys, a) == find_val_sym(monkeys, b))
+    solve(find_val_sym(monkeys, a) - find_val_sym(monkeys, b))
 end
 
 function part2()
-    monkeys = Dict{String,Union{Int,PyObject,Tuple{String,Char,String}}}()
+    monkeys = Dict{String,Union{Sym,Tuple{String,Char,String}}}()
 
     for l in eachline("input/day21/input")
         a, b = split(l, ": ")
@@ -90,7 +89,7 @@ function part2()
         bs = split(b)
 
         if length(bs) == 1
-            monkeys[a] = parse(Int, bs[1])
+            monkeys[a] = Sym(parse(Int, bs[1]))
         else
             monkeys[a] = (String(bs[1]), bs[2][1], String(bs[3]))
         end
