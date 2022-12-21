@@ -1,4 +1,4 @@
-using SymPy
+using Polynomials
 
 function find_val(monkeys, monkey)
     if monkeys[monkey] isa Int
@@ -44,7 +44,7 @@ function part1()
 end
 
 function find_val_sym(monkeys, monkey)
-    if monkeys[monkey] isa Sym
+    if !(monkeys[monkey] isa Tuple)
         monkeys[monkey]
     else
         a, o, b = monkeys[monkey]
@@ -59,11 +59,7 @@ function find_val_sym(monkeys, monkey)
         elseif o == '*'
             ax * bx
         elseif o == '/'
-            if ax isa Sym || bx isa Sym
-                ax / bx
-            else
-                ax ÷ bx
-            end
+            ax / bx
         else
             @show o
         end
@@ -73,15 +69,15 @@ function find_val_sym(monkeys, monkey)
 end
 
 function find_humn(monkeys)
-    monkeys["humn"] = Sym("humn")
+    monkeys["humn"] = Polynomial([0//1, 1//1])
 
     a, _, b = monkeys["root"]
     
-    solve(find_val_sym(monkeys, a) - find_val_sym(monkeys, b))
+    roots(find_val_sym(monkeys, a) - find_val_sym(monkeys, b))
 end
 
 function part2()
-    monkeys = Dict{String,Union{Sym,Tuple{String,Char,String}}}()
+    monkeys = Dict{String,Union{Polynomial{Rational{Int}},Rational{Int},Tuple{String,Char,String}}}()
 
     for l in eachline("input/day21/input")
         a, b = split(l, ": ")
@@ -89,7 +85,7 @@ function part2()
         bs = split(b)
 
         if length(bs) == 1
-            monkeys[a] = Sym(parse(Int, bs[1]))
+            monkeys[a] = parse(Int, bs[1]) // 1
         else
             monkeys[a] = (String(bs[1]), bs[2][1], String(bs[3]))
         end
