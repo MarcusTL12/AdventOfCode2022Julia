@@ -88,87 +88,95 @@ function part1()
     pos[2] * 1000 + pos[1] * 4 + get_facing_num(dir)
 end
 
-function face_inds_ex1()
-    [
-        (@SVector [3, 1]),
-        (@SVector [1, 2]),
-        (@SVector [2, 2]),
-        (@SVector [3, 2]),
-        (@SVector [3, 3]),
-        (@SVector [4, 3]),
-    ]
+function hand_coded_data_ex1()
+    function face_inds()
+        [
+            (@SVector [3, 1]),
+            (@SVector [1, 2]),
+            (@SVector [2, 2]),
+            (@SVector [3, 2]),
+            (@SVector [3, 3]),
+            (@SVector [4, 3]),
+        ]
+    end
+
+    function get_face(x, y)
+        if 1 <= y <= 4
+            1
+        elseif 5 <= y <= 8
+            if 1 <= x <= 4
+                2
+            elseif 5 <= x <= 8
+                3
+            else
+                4
+            end
+        else
+            if 9 <= x <= 12
+                5
+            else
+                6
+            end
+        end
+    end
+
+    function adjacencies()
+        [
+            [(6, 3), (4, 2), (3, 2), (2, 2)],
+            [(3, 1), (5, 4), (6, 4), (1, 2)],
+            [(4, 1), (5, 1), (2, 3), (1, 1)],
+            [(6, 2), (2, 1), (5, 3), (4, 2)],
+            [(6, 1), (2, 4), (3, 4), (4, 4)]
+        ]
+    end
+
+    (face_inds, get_face, adjacencies, 4)
 end
 
-function get_face_ex1(x, y)
-    if 1 <= y <= 4
-        1
-    elseif 5 <= y <= 8
-        if 1 <= x <= 4
-            2
-        elseif 5 <= x <= 8
+function hand_coded_data_input()
+    function face_inds()
+        [
+            (@SVector [2, 1]),
+            (@SVector [3, 1]),
+            (@SVector [2, 2]),
+            (@SVector [1, 3]),
+            (@SVector [2, 3]),
+            (@SVector [1, 4]),
+        ]
+    end
+
+    function get_face(x, y)
+        if 1 <= y <= 50
+            if 51 <= x <= 100
+                1
+            else
+                2
+            end
+        elseif 51 <= y <= 100
             3
-        else
-            4
-        end
-    else
-        if 9 <= x <= 12
-            5
+        elseif 101 <= y <= 150
+            if 1 <= x <= 50
+                4
+            else
+                5
+            end
         else
             6
         end
     end
-end
 
-function adjacencies_ex1()
-    [
-        [(6, 3), (4, 2), (3, 2), (2, 2)],
-        [(3, 1), (5, 4), (6, 4), (1, 2)],
-        [(4, 1), (5, 1), (2, 3), (1, 1)],
-        [(6, 2), (2, 1), (5, 3), (4, 2)],
-        [(6, 1), (2, 4), (3, 4), (4, 4)]
-    ]
-end
-
-function face_inds_input()
-    [
-        (@SVector [2, 1]),
-        (@SVector [3, 1]),
-        (@SVector [2, 2]),
-        (@SVector [1, 3]),
-        (@SVector [2, 3]),
-        (@SVector [1, 4]),
-    ]
-end
-
-function get_face_input(x, y)
-    if 1 <= y <= 50
-        if 51 <= x <= 100
-            1
-        else
-            2
-        end
-    elseif 51 <= y <= 100
-        3
-    elseif 101 <= y <= 150
-        if 1 <= x <= 50
-            4
-        else
-            5
-        end
-    else
-        6
+    function adjacencies()
+        [
+            [(2, 1), (3, 2), (4, 1), (6, 1)],
+            [(5, 3), (3, 3), (1, 3), (6, 4)],
+            [(2, 4), (5, 2), (4, 2), (1, 4)],
+            [(5, 1), (6, 2), (1, 1), (3, 1)],
+            [(2, 3), (6, 3), (4, 3), (3, 4)],
+            [(5, 4), (2, 2), (1, 2), (4, 4)],
+        ]
     end
-end
 
-function adjacencies_input()
-    [
-        [(2, 1), (3, 2), (4, 1), (6, 1)],
-        [(5, 3), (3, 3), (1, 3), (6, 4)],
-        [(2, 4), (5, 2), (4, 2), (1, 4)],
-        [(5, 1), (6, 2), (1, 1), (3, 1)],
-        [(2, 3), (6, 3), (4, 3), (3, 4)],
-        [(5, 4), (2, 2), (1, 2), (4, 4)]
-    ]
+    (face_inds, get_face, adjacencies, 50)
 end
 
 function get_face_coord(face_ind, w)
@@ -198,8 +206,7 @@ function portal_rel_coord(relpos, w, dirnum, target_dirnum)
 end
 
 function part2()
-    # w = 4
-    w = 50
+    (face_inds, get_face, adjacencies, w) = hand_coded_data_input()
 
     grid = Dict{SVector{2,Int},Tuple{Int,Bool}}()
 
@@ -217,7 +224,7 @@ function part2()
         x = 1
         for c in l
             if c != ' '
-                grid[@SVector [x, y]] = (get_face_input(x, y), c == '#')
+                grid[@SVector [x, y]] = (get_face(x, y), c == '#')
 
                 if y == 1 && c == '.' && pos[1] == 0
                     pos = @SVector [x, y]
@@ -234,9 +241,9 @@ function part2()
 
     dir = @SVector [1, 0]
 
-    adj = adjacencies_input()
+    adj = adjacencies()
 
-    face_inds = face_inds_input()
+    face_inds = face_inds()
 
     dirs = [
         (@SVector [1, 0]),
@@ -247,8 +254,6 @@ function part2()
 
     for m in eachmatch(instruction_reg, instructions)
         s = m.match
-
-        # println(s)
 
         if s == "R"
             dir = rot_r * dir
@@ -284,14 +289,8 @@ function part2()
                         dir = ndir
                     end
                 end
-
-                # println("-------------------")
-                # draw_grid(grid, pos, dir)
             end
         end
-
-        # println("=====================")
-        # draw_grid(grid, pos, dir)
     end
 
     pos[2] * 1000 + pos[1] * 4 + get_facing_num(dir)
@@ -322,7 +321,6 @@ function draw_grid(grid, pos, dir)
                     print('#')
                 else
                     print('.')
-                    # print(grid[xy][1])
                 end
             else
                 print(' ')
