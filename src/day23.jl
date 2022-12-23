@@ -31,9 +31,6 @@ function part1()
         y += 1
     end
 
-    @show length(grid)
-    # show_elves(grid)
-
     moves = Dict{Tuple{Int,Int},Tuple{Int,Int}}()
     rev_moves = copy(moves)
 
@@ -84,20 +81,12 @@ function part1()
             delete!(grid, from)
             push!(grid, to)
         end
-
-        # println("================")
-        # show_elves(grid)
     end
 
     minx = minimum(x for (x, _) in grid)
     maxx = maximum(x for (x, _) in grid)
     miny = minimum(y for (_, y) in grid)
     maxy = maximum(y for (_, y) in grid)
-
-    @show length(grid) minx maxx miny maxy
-
-    # println("================")
-    # show_elves(grid)
 
     (maxx - minx + 1) * (maxy - miny + 1) - length(grid)
 end
@@ -115,9 +104,6 @@ function part2()
 
         y += 1
     end
-
-    @show length(grid)
-    # show_elves(grid)
 
     moves = Dict{Tuple{Int,Int},Tuple{Int,Int}}()
     rev_moves = copy(moves)
@@ -176,8 +162,5 @@ function part2()
         if !any_moves
             return i
         end
-
-        # println("================")
-        # show_elves(grid)
     end
 end
