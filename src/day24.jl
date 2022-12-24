@@ -19,6 +19,37 @@ function inside_board(x, y, w, h)
     (x, y) == (2, 1) || (x, y) == (w - 1, h) || 1 < x < w && 1 < y < h
 end
 
+function bfs(start, stop, t0, blizzards, w, h)
+    dirs = [(1, 0), (0, 1), (-1, 0), (0, -1)]
+
+    queue = [(start, t0)]
+    visited = Set(queue)
+
+    while !isempty(queue)
+        (pos, t) = popfirst!(queue)
+
+        if !is_blizzard(blizzards, pos, t + 1, w, h) && (pos, t + 1) ∉ visited
+            push!(queue, (pos, t + 1))
+            push!(visited, (pos, t + 1))
+        end
+
+        for d in dirs
+            npos = pos .+ d
+            nt = t + 1
+
+            if npos == stop
+                return t + 1
+            end
+
+            if !is_blizzard(blizzards, npos, nt, w, h) &&
+               (npos, nt) ∉ visited && inside_board(npos..., w, h)
+                push!(queue, (npos, nt))
+                push!(visited, (npos, nt))
+            end
+        end
+    end
+end
+
 function part1()
     blizzards = Tuple{Tuple{Int,Int},Int}[]
 
@@ -47,34 +78,7 @@ function part1()
     w -= 1
     h = y - 1
 
-    dirs = [(1, 0), (0, 1), (-1, 0), (0, -1)]
-
-    queue = [((2, 1), 0)]
-    visited = Set(queue)
-
-    while !isempty(queue)
-        (pos, t) = popfirst!(queue)
-
-        if !is_blizzard(blizzards, pos, t + 1, w, h) && (pos, t + 1) ∉ visited
-            push!(queue, (pos, t + 1))
-            push!(visited, (pos, t + 1))
-        end
-
-        for d in dirs
-            npos = pos .+ d
-            nt = t + 1
-
-            if npos == (w - 1, h)
-                return t + 1
-            end
-
-            if !is_blizzard(blizzards, npos, nt, w, h) &&
-               (npos, nt) ∉ visited && inside_board(npos..., w, h)
-                push!(queue, (npos, nt))
-                push!(visited, (npos, nt))
-            end
-        end
-    end
+    bfs((2, 1), (w - 1, h), 0, blizzards, w, h)
 end
 
 function part2()
@@ -105,104 +109,12 @@ function part2()
     w -= 1
     h = y - 1
 
-    dirs = [(1, 0), (0, 1), (-1, 0), (0, -1)]
+    start = (2, 1)
+    goal = (w - 1, h)
 
-    queue = [((2, 1), 0)]
-    visited = Set(queue)
-
-    time1 = 0
-
-    while !isempty(queue)
-        (pos, t) = popfirst!(queue)
-
-        if !is_blizzard(blizzards, pos, t + 1, w, h) && (pos, t + 1) ∉ visited
-            push!(queue, (pos, t + 1))
-            push!(visited, (pos, t + 1))
-        end
-
-        for d in dirs
-            npos = pos .+ d
-            nt = t + 1
-
-            if npos == (w - 1, h)
-                time1 = t + 1
-                break
-            end
-
-            if !is_blizzard(blizzards, npos, nt, w, h) &&
-               (npos, nt) ∉ visited && inside_board(npos..., w, h)
-                push!(queue, (npos, nt))
-                push!(visited, (npos, nt))
-            end
-        end
-
-        if time1 != 0
-            break
-        end
-    end
-
+    time1 = bfs(start, goal, 0, blizzards, w, h)
     @show time1
-
-    queue = [((w - 1, h), time1)]
-    visited = Set(queue)
-
-    time2 = 0
-
-    while !isempty(queue)
-        (pos, t) = popfirst!(queue)
-
-        if !is_blizzard(blizzards, pos, t + 1, w, h) && (pos, t + 1) ∉ visited
-            push!(queue, (pos, t + 1))
-            push!(visited, (pos, t + 1))
-        end
-
-        for d in dirs
-            npos = pos .+ d
-            nt = t + 1
-
-            if npos == (2, 1)
-                time2 = t + 1
-                break
-            end
-
-            if !is_blizzard(blizzards, npos, nt, w, h) &&
-               (npos, nt) ∉ visited && inside_board(npos..., w, h)
-                push!(queue, (npos, nt))
-                push!(visited, (npos, nt))
-            end
-        end
-
-        if time2 != 0
-            break
-        end
-    end
-
+    time2 = bfs(goal, start, time1, blizzards, w, h)
     @show time2
-
-    queue = [((2, 1), time2)]
-    visited = Set(queue)
-
-    while !isempty(queue)
-        (pos, t) = popfirst!(queue)
-
-        if !is_blizzard(blizzards, pos, t + 1, w, h) && (pos, t + 1) ∉ visited
-            push!(queue, (pos, t + 1))
-            push!(visited, (pos, t + 1))
-        end
-
-        for d in dirs
-            npos = pos .+ d
-            nt = t + 1
-
-            if npos == (w - 1, h)
-                return t + 1
-            end
-
-            if !is_blizzard(blizzards, npos, nt, w, h) &&
-               (npos, nt) ∉ visited && inside_board(npos..., w, h)
-                push!(queue, (npos, nt))
-                push!(visited, (npos, nt))
-            end
-        end
-    end
+    bfs(start, goal, time2, blizzards, w, h)
 end
