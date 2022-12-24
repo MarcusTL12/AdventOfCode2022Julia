@@ -47,8 +47,6 @@ function part1()
     w -= 1
     h = y - 1
 
-    @show (w, h)
-
     dirs = [(1, 0), (0, 1), (-1, 0), (0, -1)]
 
     queue = [((2, 1), 0)]
@@ -84,7 +82,7 @@ function part2()
 
     y = 1
     w = 0
-    for l in eachline("input/day24/ex2")
+    for l in eachline("input/day24/input")
         x = 1
         for c in l
             if c == '>'
@@ -107,39 +105,103 @@ function part2()
     w -= 1
     h = y - 1
 
-    @show (w, h)
-
     dirs = [(1, 0), (0, 1), (-1, 0), (0, -1)]
 
-    queue = [((2, 1), 0, 0)]
+    queue = [((2, 1), 0)]
     visited = Set(queue)
 
+    time1 = 0
+
     while !isempty(queue)
-        (pos, t, state) = popfirst!(queue)
+        (pos, t) = popfirst!(queue)
 
         if !is_blizzard(blizzards, pos, t + 1, w, h) && (pos, t + 1) ∉ visited
-            push!(queue, (pos, t + 1, state))
-            push!(visited, (pos, t + 1, state))
+            push!(queue, (pos, t + 1))
+            push!(visited, (pos, t + 1))
         end
 
         for d in dirs
             npos = pos .+ d
             nt = t + 1
 
-            if npos == (w - 1, h) && state == 2
+            if npos == (w - 1, h)
+                time1 = t + 1
+                break
+            end
+
+            if !is_blizzard(blizzards, npos, nt, w, h) &&
+               (npos, nt) ∉ visited && inside_board(npos..., w, h)
+                push!(queue, (npos, nt))
+                push!(visited, (npos, nt))
+            end
+        end
+
+        if time1 != 0
+            break
+        end
+    end
+
+    @show time1
+
+    queue = [((w - 1, h), time1)]
+    visited = Set(queue)
+
+    time2 = 0
+
+    while !isempty(queue)
+        (pos, t) = popfirst!(queue)
+
+        if !is_blizzard(blizzards, pos, t + 1, w, h) && (pos, t + 1) ∉ visited
+            push!(queue, (pos, t + 1))
+            push!(visited, (pos, t + 1))
+        end
+
+        for d in dirs
+            npos = pos .+ d
+            nt = t + 1
+
+            if npos == (2, 1)
+                time2 = t + 1
+                break
+            end
+
+            if !is_blizzard(blizzards, npos, nt, w, h) &&
+               (npos, nt) ∉ visited && inside_board(npos..., w, h)
+                push!(queue, (npos, nt))
+                push!(visited, (npos, nt))
+            end
+        end
+
+        if time2 != 0
+            break
+        end
+    end
+
+    @show time2
+
+    queue = [((2, 1), time2)]
+    visited = Set(queue)
+
+    while !isempty(queue)
+        (pos, t) = popfirst!(queue)
+
+        if !is_blizzard(blizzards, pos, t + 1, w, h) && (pos, t + 1) ∉ visited
+            push!(queue, (pos, t + 1))
+            push!(visited, (pos, t + 1))
+        end
+
+        for d in dirs
+            npos = pos .+ d
+            nt = t + 1
+
+            if npos == (w - 1, h)
                 return t + 1
             end
 
             if !is_blizzard(blizzards, npos, nt, w, h) &&
                (npos, nt) ∉ visited && inside_board(npos..., w, h)
-               nstate = state
-                if npos == (w - 1, h) && state == 0
-                    nstate = 1
-                elseif npos == (2, 1) && state == 1
-                    nstate = 2
-                end
-                push!(queue, (npos, nt, nstate))
-                push!(visited, (npos, nt, nstate))
+                push!(queue, (npos, nt))
+                push!(visited, (npos, nt))
             end
         end
     end
