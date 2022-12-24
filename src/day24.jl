@@ -1,3 +1,4 @@
+using DataStructures
 
 function blizzard_pos(((bx, by), d), t, w, h)
     if d == 1
@@ -59,6 +60,50 @@ function bfs(start, stop, t0, blizzards, w, h, tmax)
     end
 end
 
+function astar(start, stop, t0, blizzards, w, h)
+    dirs = [(1, 0), (0, 1), (-1, 0), (0, -1)]
+
+    weight = 0
+
+    queue = PriorityQueue([(start, t0) => mandist(start, stop) * weight + t0])
+
+    while !isempty(queue)
+        (pos, t) = dequeue!(queue)
+
+        if !is_blizzard(blizzards, pos, t + 1, w, h)
+            if haskey(queue, (pos, t + 1))
+                queue[(pos, t + 1)] = min(
+                    queue[(pos, t + 1)],
+                    mandist(pos, stop) * weight + t + 1
+                )
+            else
+                queue[(pos, t + 1)] = mandist(pos, stop) * weight + t + 1
+            end
+        end
+
+        for d in dirs
+            npos = pos .+ d
+            nt = t + 1
+
+            if npos == stop
+                return t + 1
+            end
+
+            if !is_blizzard(blizzards, npos, nt, w, h) &&
+               inside_board(npos..., w, h)
+                if haskey(queue, (npos, nt))
+                    queue[(npos, nt)] = min(
+                        queue[(npos, nt)],
+                        mandist(npos, stop) * weight + nt
+                    )
+                else
+                    queue[(npos, nt)] = mandist(npos, stop) * weight + nt
+                end
+            end
+        end
+    end
+end
+
 function part1()
     blizzards = Tuple{Tuple{Int,Int},Int}[]
 
@@ -87,7 +132,8 @@ function part1()
     w -= 1
     h = y - 1
 
-    bfs((2, 1), (w - 1, h), 0, blizzards, w, h, 320)
+    # bfs((2, 1), (w - 1, h), 0, blizzards, w, h, typemax(Int))
+    astar((2, 1), (w - 1, h), 0, blizzards, w, h)
 end
 
 function part2()
