@@ -13,7 +13,12 @@ function blizzard_pos(((bx, by), d), t, w, h)
 end
 
 function is_blizzard(blizzards, pos, t, w, h)
-    any(blizzard_pos(blz, t, w, h) == pos for blz in blizzards)
+    any_th = falses(Threads.nthreads())
+    # any(blizzard_pos(blz, t, w, h) == pos for blz in blizzards)
+
+    Threads.@threads for blz in blizzards
+        
+    end
 end
 
 function inside_board(x, y, w, h)

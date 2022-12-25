@@ -18,13 +18,24 @@ function parse_snafu(s)
 end
 
 function write_snafu(x)
-    
+    alphabet = ['=', '-', '0', '1', '2']
+
+    i = floor(Int, log(5, x))
+
+    dgts = Char[]
+
+    while abs(x) > 2
+        d = round(Int, x / 5^i)
+        x -= d * 5^i
+        i -= 1
+        push!(dgts, alphabet[d + 3])
+    end
+
+    push!(dgts, alphabet[x + 3])
+
+    String(dgts)
 end
 
 function part1()
-    sum(parse_snafu, eachline("input/day25/input"))
+    write_snafu(sum(parse_snafu, eachline("input/day25/input")))
 end
-
-x = part1()
-
-parse_snafu("2-02===-21---2002==0") - x
