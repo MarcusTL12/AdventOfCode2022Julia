@@ -1,32 +1,25 @@
-using DataStructures
-
-function blizzard_pos(((bx, by), d), t, w, h)
-    if d == 1
-        ((bx + t - 2) % (w - 2) + 2, by)
-    elseif d == 2
-        (bx, (by + t - 2) % (h - 2) + 2)
-    elseif d == 3
-        (((bx - t - 2) % (w - 2) + (w - 2)) % (w - 2) + 2, by)
-    elseif d == 4
-        (bx, ((by - t - 2) % (h - 2) + (h - 2)) % (h - 2) + 2)
-    end
-end
-
-function is_blizzard(blizzards, pos, t, w, h)
-    any(blizzard_pos(blz, t, w, h) == pos for blz in blizzards)
-end
 
 function inside_board(x, y, w, h)
     (x, y) == (2, 1) || (x, y) == (w - 1, h) || 1 < x < w && 1 < y < h
 end
 
-function mandist(a, b)
-    sum(abs, a .- b)
+function is_blizzard(blizzard_grid, (x, y), t)
+    (w, h, _) = size(blizzard_grid)
+
+    x -= 1
+    y -= 1
+
+    if 1 <= x <= w && 1 <= y <= h
+        blizzard_grid[mod1(x - t, w), y, 1] ||
+            blizzard_grid[x, mod1(y - t, h), 2] ||
+            blizzard_grid[mod1(x + t, w), y, 3] ||
+            blizzard_grid[x, mod1(y + t, h), 4]
+    else
+        false
+    end
 end
 
-function bfs(start, stop, t0, blizzards, w, h, tmax)
-    tmax += t0
-
+function bfs(start, stop, t0, blizzards, w, h)
     dirs = [(1, 0), (0, 1), (-1, 0), (0, -1)]
 
     queue = [(start, t0)]
@@ -35,8 +28,8 @@ function bfs(start, stop, t0, blizzards, w, h, tmax)
     while !isempty(queue)
         (pos, t) = popfirst!(queue)
 
-        if !is_blizzard(blizzards, pos, t + 1, w, h) &&
-           (pos, t + 1) ∉ visited && mandist(pos, stop) + t + 1 <= tmax
+        if !is_blizzard(blizzards, pos, t + 1) &&
+           (pos, t + 1) ∉ visited
             push!(queue, (pos, t + 1))
             push!(visited, (pos, t + 1))
         end
@@ -49,56 +42,11 @@ function bfs(start, stop, t0, blizzards, w, h, tmax)
                 return t + 1
             end
 
-            if !is_blizzard(blizzards, npos, nt, w, h) &&
+            if !is_blizzard(blizzards, npos, nt) &&
                (npos, nt) ∉ visited &&
-               inside_board(npos..., w, h) &&
-               mandist(npos, stop) + nt <= tmax
+               inside_board(npos..., w, h)
                 push!(queue, (npos, nt))
                 push!(visited, (npos, nt))
-            end
-        end
-    end
-end
-
-function astar(start, stop, t0, blizzards, w, h)
-    dirs = [(1, 0), (0, 1), (-1, 0), (0, -1)]
-
-    weight = 0
-
-    queue = PriorityQueue([(start, t0) => mandist(start, stop) * weight + t0])
-
-    while !isempty(queue)
-        (pos, t) = dequeue!(queue)
-
-        if !is_blizzard(blizzards, pos, t + 1, w, h)
-            if haskey(queue, (pos, t + 1))
-                queue[(pos, t + 1)] = min(
-                    queue[(pos, t + 1)],
-                    mandist(pos, stop) * weight + t + 1
-                )
-            else
-                queue[(pos, t + 1)] = mandist(pos, stop) * weight + t + 1
-            end
-        end
-
-        for d in dirs
-            npos = pos .+ d
-            nt = t + 1
-
-            if npos == stop
-                return t + 1
-            end
-
-            if !is_blizzard(blizzards, npos, nt, w, h) &&
-               inside_board(npos..., w, h)
-                if haskey(queue, (npos, nt))
-                    queue[(npos, nt)] = min(
-                        queue[(npos, nt)],
-                        mandist(npos, stop) * weight + nt
-                    )
-                else
-                    queue[(npos, nt)] = mandist(npos, stop) * weight + nt
-                end
             end
         end
     end
@@ -132,8 +80,13 @@ function part1()
     w -= 1
     h = y - 1
 
-    # bfs((2, 1), (w - 1, h), 0, blizzards, w, h, typemax(Int))
-    astar((2, 1), (w - 1, h), 0, blizzards, w, h)
+    blizz_grid = falses(w - 2, h - 2, 4)
+
+    for ((x, y), d) in blizzards
+        blizz_grid[x-1, y-1, d] = true
+    end
+
+    bfs((2, 1), (w - 1, h), 0, blizz_grid, w, h)
 end
 
 function part2()
@@ -164,12 +117,24 @@ function part2()
     w -= 1
     h = y - 1
 
+    blizz_grid = falses(w - 2, h - 2, 4)
+
+    for ((x, y), d) in blizzards
+        blizz_grid[x-1, y-1, d] = true
+    end
+
     start = (2, 1)
     goal = (w - 1, h)
 
-    time1 = bfs(start, goal, 0, blizzards, w, h, 320)
-    @show time1
-    time2 = bfs(goal, start, time1, blizzards, w, h, 320)
-    @show time2
-    bfs(start, goal, time2, blizzards, w, h, 320)
+    bfs(
+        start,
+        goal,
+        bfs(
+            goal,
+            start,
+            bfs(start, goal, 0, blizz_grid, w, h), blizz_grid, w, h),
+        blizz_grid,
+        w,
+        h
+    )
 end
